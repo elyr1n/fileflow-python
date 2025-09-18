@@ -1,0 +1,58 @@
+{% extends "uploader/base.html" %}
+
+{% block title %}FileFlow - Загрузка файлов{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Загрузка файла</h1>
+
+<!-- Сообщения -->
+<div class="mb-6 space-y-2">
+    {% for message in messages %}
+        <div class="p-4 rounded shadow
+                    {% if message.tags == 'success' %}bg-green-100 text-green-800
+                    {% elif message.tags == 'error' %}bg-red-100 text-red-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Форма загрузки -->
+<form method="POST" enctype="multipart/form-data" class="flex items-center gap-4 mb-8">
+    {% csrf_token %}
+    <input type="file" name="file" required
+           class="flex-1 border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+    <div class="ml-auto">
+        <button type="submit"
+                class="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 transition">
+            Загрузить
+        </button>
+    </div>
+</form>
+
+<hr class="my-6 border-gray-300">
+
+<!-- Список файлов -->
+<h2 class="text-2xl font-semibold mb-4">Список файлов</h2>
+<div class="grid gap-4 md:grid-cols-2">
+    {% for file in files %}
+    <div class="bg-white p-4 rounded shadow hover:shadow-md transition flex justify-between items-center">
+        <div>
+            <a href="{{ file.get_view_url }}" class="text-blue-600 hover:underline font-medium">
+                {{ file.original_name }}
+            </a>
+            <div class="text-gray-500 text-sm">{{ file.human_size }}</div>
+        </div>
+        <form action="{% url 'uploader:file_delete' file.slug %}" method="post" class="inline">
+            {% csrf_token %}
+            <button type="submit"
+                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+                Удалить
+            </button>
+        </form>
+    </div>
+    {% empty %}
+    <p class="text-gray-500 italic">Файлов нет</p>
+    {% endfor %}
+</div>
+{% endblock %}
