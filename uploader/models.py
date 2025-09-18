@@ -1,12 +1,30 @@
-import uuid
+import os
+import shortuuid
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.urls import reverse
 
-# Create your models here.
+
+def validate_file_size(max_size_gb: int):
+    def validator(value):
+        if value.size > max_size_gb * 1024**3:
+            raise ValidationError(f"Максимальный размер файла {max_size_gb} ГБ")
+    return validator
+
+
 class UploadFile(models.Model):
-    file = models.FileField(upload_to="uploads/%Y/%m/%d/", verbose_name="Файл")
-    original_name_file = models.CharField(max_length=255, verbose_name="Имя файла", blank=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата загрузки")
-    slug = models.SlugField(max_length=255, unique=True, verbose_name="URL", blank=True)
+    file = models.FileField(
+        upload_to="uploads/%Y/%m/%d/",
+        verbose_name="Файл",
+        validators=[validate_file_size(1)],
+    )
+    original_name = models.CharField("Имя файла", max_length=255, blank=True)
+    uploaded_at = models.DateTimeField("Дата загрузки", auto_now_add=True)
+    slug = models.SlugField("URL", max_length=255, unique=True, blank=True)
+
+    size = models.BigIntegerField("Размер (байт)", null=True, blank=True)
+    content_type = models.CharField("Тип содержимого", max_length=100, blank=True)
+    extension = models.CharField("Расширение", max_length=20, blank=True)
 
     class Meta:
         verbose_name = "Файл"
@@ -14,13 +32,41 @@ class UploadFile(models.Model):
         ordering = ["-uploaded_at"]
 
     def __str__(self):
-        return f"{self.original_name_file} ({self.uploaded_at})"
+        return self.original_name or "Без имени"
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = str(uuid.uuid4())
+            self.slug = shortuuid.uuid()
 
-        if not self.original_name_file and self.file:
-            self.original_name_file = self.file.name
+        if self.file and not self.original_name:
+            self.original_name = os.path.basename(self.file.name)
+
+        if self.file:
+            self.size = getattr(self.file, "size", None)
+            self.extension = os.path.splitext(self.file.name)[1].lower().lstrip(".")
+            self.content_type = getattr(self.file, "content_type", "")
 
         super().save(*args, **kwargs)
+
+    def get_download_url(self):
+        return reverse("uploader:file_download", args=[self.slug])
+
+    def get_view_url(self):
+        return reverse("uploader:file_detail", args=[self.slug])
+
+    def human_size(self):
+        if not self.size:
+            return "-"
+        size = self.size
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
+            if size < 1024:
+                return f"{size:.2f} {unit}"
+            size /= 1024
+
+    @property
+    def is_previewable(self):
+        return (
+            self.content_type.startswith("image/")
+            or self.content_type.startswith("text/")
+            or self.content_type == "application/pdf"
+        )
