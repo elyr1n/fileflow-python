@@ -38,8 +38,8 @@
     {% for file in files %}
     <div class="bg-white p-4 rounded shadow hover:shadow-md transition flex justify-between items-center">
         <div>
-            <a href="{{ file.get_view_url }}" class="text-blue-600 hover:underline font-medium">
-                {{ file.original_name }}
+            <a href="{{ file.get_view_url }}" class="text-blue-600 hover:underline font-medium" title="{{ file.original_name }}">
+                {{ file.original_name|truncatechars:32 }}
             </a>
             <div class="text-gray-500 text-sm">{{ file.human_size }}</div>
         </div>
