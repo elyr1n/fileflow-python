@@ -75,7 +75,6 @@ class UploadFile(models.Model):
                 return f"{size:.2f} {unit}"
             size /= 1024.0
 
-    # Свойства для превью
     @property
     def is_image(self):
         return self.content_type.startswith("image/")
