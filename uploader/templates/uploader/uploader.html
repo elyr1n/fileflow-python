@@ -1,58 +1,100 @@
 {% extends "uploader/base.html" %}
 
-{% block title %}FileFlow - Загрузка файлов{% endblock %}
+{% block title %}FileFlow - Загрузка файла{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Загрузка файла</h1>
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <h1 class="text-4xl font-extrabold mb-10 text-center text-blue-600 tracking-tight">
+        Загрузка файла
+    </h1>
 
-<!-- Сообщения -->
-<div class="mb-6 space-y-2">
-    {% for message in messages %}
-        <div class="p-4 rounded shadow
-                    {% if message.tags == 'success' %}bg-green-100 text-green-800
-                    {% elif message.tags == 'error' %}bg-red-100 text-red-800
-                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-            {{ message }}
-        </div>
-    {% endfor %}
-</div>
+    <div class="mb-6 space-y-3">
+        {% for message in messages %}
+            <div class="p-4 rounded-xl shadow-md border
+                        {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200
+                        {% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200
+                        {% else %}bg-gray-50 text-gray-800 border-gray-200{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
 
-<!-- Форма загрузки -->
-<form method="POST" enctype="multipart/form-data" class="flex items-center gap-4 mb-8">
-    {% csrf_token %}
-    <input type="file" name="file" required
-           class="flex-1 border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
-    <div class="ml-auto">
+    <form method="POST" enctype="multipart/form-data"
+          class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 mb-10 text-center">
+        {% csrf_token %}
+
+        <label for="file-upload"
+               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0l-3 3m3-3l3 3" />
+            </svg>
+            <span id="file-label" class="text-gray-600 font-medium">Нажмите для выбора или перетащите файл</span>
+            <input id="file-upload" type="file" name="file" required class="hidden">
+        </label>
+
         <button type="submit"
-                class="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 transition">
+                class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg shadow hover:bg-blue-700 transition">
             Загрузить
         </button>
+    </form>
+
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Список файлов</h2>
+        {% if not files %}
+            <p class="text-gray-500 mt-2 italic">Файлов нет</p>
+        {% endif %}
     </div>
-</form>
 
-<hr class="my-6 border-gray-300">
-
-<!-- Список файлов -->
-<h2 class="text-2xl font-semibold mb-4">Список файлов</h2>
-<div class="grid gap-4 md:grid-cols-2">
-    {% for file in files %}
-    <div class="bg-white p-4 rounded shadow hover:shadow-md transition flex justify-between items-center">
-        <div>
-            <a href="{{ file.get_view_url }}" class="text-blue-600 hover:underline font-medium" title="{{ file.original_name }}">
-                {{ file.original_name|truncatechars:32 }}
-            </a>
-            <div class="text-gray-500 text-sm">{{ file.human_size }}</div>
+    <div class="grid gap-6 md:grid-cols-2">
+        {% for file in files %}
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="{{ file.get_view_url }}"
+                       class="text-blue-600 font-medium text-lg
+                              transition-transform transition-colors duration-300
+                              hover:text-blue-800 hover:scale-105 cursor-pointer
+                              hover:animate-file-hover"
+                       title="{{ file.original_name }}">
+                        {{ file.original_name|truncatechars:32 }}
+                    </a>
+                    <div class="text-gray-500 text-sm mt-1">{{ file.human_size }}</div>
+                </div>
+                <form action="{% url 'uploader:file_delete' file.slug %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">
+                        Удалить
+                    </button>
+                </form>
+            </div>
         </div>
-        <form action="{% url 'uploader:file_delete' file.slug %}" method="post" class="inline">
-            {% csrf_token %}
-            <button type="submit"
-                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
-                Удалить
-            </button>
-        </form>
+        {% endfor %}
     </div>
-    {% empty %}
-    <p class="text-gray-500 italic">Файлов нет</p>
-    {% endfor %}
 </div>
+
+<script>
+document.getElementById("file-upload").addEventListener("change", function() {
+    const fileLabel = document.getElementById("file-label");
+    if (this.files.length > 0) {
+        fileLabel.textContent = "Выбран файл: " + this.files[0].name;
+    } else {
+        fileLabel.textContent = "Нажмите для выбора или перетащите файл";
+    }
+});
+</script>
+
+<style>
+@keyframes file-hover {
+    0% { transform: scale(1) rotate(0deg); text-shadow: 0 0 0px rgba(0,0,0,0); }
+    25% { transform: scale(1.03) rotate(-1deg); text-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
+    50% { transform: scale(1.05) rotate(1deg); text-shadow: 0 0 6px rgba(59, 130, 246, 0.6); }
+    75% { transform: scale(1.03) rotate(-1deg); text-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
+    100% { transform: scale(1) rotate(0deg); text-shadow: 0 0 0px rgba(0,0,0,0); }
+}
+
+.animate-file-hover:hover {
+    animation: file-hover 0.6s ease-in-out forwards;
+}
+</style>
 {% endblock %}

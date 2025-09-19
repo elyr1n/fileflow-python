@@ -43,3 +43,8 @@ def file_delete(request, slug):
     file.file.delete(save=False)
     file.delete()
     return redirect("uploader:uploader")
+
+
+def all_file_details(request):
+    files = UploadFile.objects.all()
+    return render(request, "uploader/all_file_details.html", {"files": files})

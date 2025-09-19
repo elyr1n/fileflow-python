@@ -1,0 +1,67 @@
+{% extends "uploader/base.html" %}
+
+{% block title %}FileFlow - Все загруженные файлы{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+    <h1 class="text-4xl font-extrabold mb-10 text-center text-blue-600 tracking-tight">
+        Все загруженные файлы
+    </h1>
+
+    {% if not files %}
+        <p class="text-gray-500 text-center italic">Файлов пока нет</p>
+    {% endif %}
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for file in files %}
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition flex flex-col">
+            <div class="flex-1 flex justify-center items-center mb-4">
+                {% if file.is_image %}
+                    <img src="{{ file.file.url }}" alt="{{ file.original_name }}"
+                         class="max-h-40 w-auto rounded-xl shadow-sm object-contain">
+                {% elif file.is_video %}
+                    <video class="max-h-40 w-auto rounded-xl shadow-sm" controls>
+                        <source src="{{ file.file.url }}" type="{{ file.content_type }}">
+                        Ваш браузер не поддерживает видео.
+                    </video>
+                {% elif file.is_pdf %}
+                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
+                        PDF
+                    </div>
+                {% elif file.is_text %}
+                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
+                        TXT
+                    </div>
+                {% else %}
+                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
+                        Другой файл
+                    </div>
+                {% endif %}
+            </div>
+
+            <a href="{{ file.get_view_url }}"
+               class="text-blue-600 font-medium text-lg hover:text-blue-800 hover:underline truncate"
+               title="{{ file.original_name }}">
+                {{ file.original_name }}
+            </a>
+            <p class="text-gray-500 text-sm mt-1">{{ file.human_size }}</p>
+            <p class="text-gray-400 text-sm">{{ file.content_type }}</p>
+
+            <div class="mt-4 flex gap-2">
+                <a href="{{ file.get_download_url }}"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-center transition flex-1">
+                    Скачать
+                </a>
+                <form action="{% url 'uploader:file_delete' file.slug %}" method="post" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition w-full">
+                        Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
