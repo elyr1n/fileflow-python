@@ -7,26 +7,71 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 
-def file_size_validator(max_size_mb=512):
-    max_bytes = max_size_mb * 1024 ** 2
+MIME_CATEGORIES = {
+    "image": "Изображение",
+    "text": "Документ",
+    "application/pdf": "PDF-документ",
+    "application/msword": "Документ Word",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Документ Word",
+    "application/vnd.ms-excel": "Таблица Excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Таблица Excel",
+    "application/vnd.ms-powerpoint": "Презентация PowerPoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "Презентация PowerPoint",
+    "application/zip": "Архив ZIP",
+    "application/x-rar-compressed": "Архив RAR",
+    "application/x-msdownload": "Исполняемый файл Windows",
+    "application/x-iso9660-image": "ISO-образ",
+    "audio": "Аудио",
+    "video": "Видео",
+}
 
-    def validator(file):
-        if file and hasattr(file, "size") and file.size > max_bytes:
-            raise ValidationError(f"Максимальный размер файла {max_size_mb} МБ")
-    return validator
+EXTENSION_CATEGORIES = {
+    "exe": "Исполняемый файл",
+    "msi": "Инсталлятор",
+    "iso": "ISO-образ",
+    "txt": "Текстовый документ",
+    "md": "Текстовый документ",
+    "csv": "Таблица/CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "jpg": "Изображение",
+    "jpeg": "Изображение",
+    "png": "Изображение",
+    "gif": "Изображение",
+    "pdf": "PDF-документ",
+    "doc": "Документ Word",
+    "docx": "Документ Word",
+    "xls": "Таблица Excel",
+    "xlsx": "Таблица Excel",
+    "ppt": "Презентация",
+    "pptx": "Презентация",
+    "zip": "Архив ZIP",
+    "rar": "Архив RAR",
+    "mp3": "Аудио",
+    "wav": "Аудио",
+    "mp4": "Видео",
+    "mov": "Видео",
+}
 
+
+
+def validate_file_size_512mb(file):
+    if not file:
+        return
+    size = getattr(file, "size", None)
+    if size and size > 512 * 1024 * 1024:
+        raise ValidationError("Максимальный размер файла — 512 МБ")
 
 
 class UploadFile(models.Model):
     file = models.FileField(
         upload_to="uploads/%Y/%m/%d/",
         verbose_name="Файл",
-        validators=[file_size_validator(512)],
+        validators=[validate_file_size_512mb],
     )
     original_name = models.CharField("Имя файла", max_length=255, blank=True)
     uploaded_at = models.DateTimeField("Дата загрузки", auto_now_add=True)
     slug = models.SlugField("URL", max_length=255, unique=True, blank=True)
-
     size = models.BigIntegerField("Размер (байт)", null=True, blank=True)
     content_type = models.CharField("Тип содержимого", max_length=100, blank=True)
     extension = models.CharField("Расширение", max_length=20, blank=True)
@@ -40,25 +85,20 @@ class UploadFile(models.Model):
         return self.original_name or "Без имени"
 
     def save(self, *args, **kwargs):
-        if self.file and hasattr(self.file, "size") and self.file.size > 512 * 1024 ** 2:
-            raise ValidationError("Файл превышает допустимый размер 512 МБ")
-
         if not self.slug:
             self.slug = shortuuid.uuid()
-
         if self.file and not self.original_name:
             self.original_name = os.path.basename(self.file.name)
-
         if self.file:
             self.size = getattr(self.file, "size", None)
-            self.extension = os.path.splitext(self.file.name)[1].lower().lstrip(".")
-            if hasattr(self.file, "content_type"):
-                self.content_type = self.file.content_type
+            filename = getattr(self.file, "name", "") or ""
+            self.extension = os.path.splitext(filename)[1].lower().lstrip(".")
+            content_type_from_file = getattr(self.file, "content_type", None)
+            if content_type_from_file:
+                self.content_type = content_type_from_file
             else:
-                self.content_type, _ = mimetypes.guess_type(self.file.name)
-                if not self.content_type:
-                    self.content_type = "application/octet-stream"
-
+                guessed, _ = mimetypes.guess_type(filename)
+                self.content_type = guessed or "application/octet-stream"
         super().save(*args, **kwargs)
 
     def get_download_url(self):
@@ -67,6 +107,7 @@ class UploadFile(models.Model):
     def get_view_url(self):
         return reverse("uploader:file_detail", args=[self.slug])
 
+    @property
     def human_size(self):
         if not self.size:
             return "-"
@@ -75,10 +116,29 @@ class UploadFile(models.Model):
             if size < 1024.0:
                 return f"{size:.2f} {unit}"
             size /= 1024.0
+        return f"{size:.2f} TB"
+
+    @property
+    def file_category(self):
+        if not self.content_type:
+            ext = (self.extension or "").lower()
+            return EXTENSION_CATEGORIES.get(ext, "Файл")
+        if self.content_type in MIME_CATEGORIES:
+            return MIME_CATEGORIES[self.content_type]
+        if self.content_type.startswith("image/"):
+            return "Изображение"
+        if self.content_type.startswith("text/"):
+            return "Документ"
+        if self.content_type.startswith("audio/"):
+            return "Аудио"
+        if self.content_type.startswith("video/"):
+            return "Видео"
+        ext = (self.extension or "").lower()
+        return EXTENSION_CATEGORIES.get(ext, "Файл")
 
     @property
     def is_image(self):
-        return self.content_type.startswith("image/")
+        return bool(self.content_type and self.content_type.startswith("image/"))
 
     @property
     def is_pdf(self):
@@ -86,7 +146,7 @@ class UploadFile(models.Model):
 
     @property
     def is_text(self):
-        return self.content_type.startswith("text/")
+        return bool(self.content_type and self.content_type.startswith("text/"))
 
     @property
     def is_previewable(self):

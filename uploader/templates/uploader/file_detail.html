@@ -1,12 +1,12 @@
 {% extends "uploader/base.html" %}
 
-{% block title %}FileFlow - {{ file.original_name }}{% endblock %}
+{% block title %}{{ file.original_name }}{% endblock %}
 
 {% block content %}
 <div class="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto mt-10">
     <h1 class="text-3xl font-extrabold mb-4 text-gray-800">{{ file.original_name }}</h1>
     <p class="text-gray-500 mb-1"><strong>Размер:</strong> {{ file.human_size }}</p>
-    <p class="text-gray-500 mb-6"><strong>Тип:</strong> {{ file.content_type }}</p>
+    <p class="text-gray-500 mb-6"><strong>Тип:</strong> {{ file.file_category }}</p>
 
     {% if file.is_previewable %}
         <div class="mb-6">

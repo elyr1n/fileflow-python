@@ -44,6 +44,12 @@ def file_delete(request, slug):
     file.delete()
     return redirect("uploader:uploader")
 
+@require_http_methods(["POST"])
+def all_file_details_delete(request, slug):
+    file = get_object_or_404(UploadFile, slug=slug)
+    file.file.delete(save=False)
+    file.delete()
+    return redirect("uploader:all_file_details")
 
 def all_file_details(request):
     files = UploadFile.objects.all()
