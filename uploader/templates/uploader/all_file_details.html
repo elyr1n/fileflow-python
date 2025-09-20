@@ -24,13 +24,17 @@
                         <source src="{{ file.file.url }}" type="{{ file.content_type }}">
                         Ваш браузер не поддерживает видео.
                     </video>
+                {% elif file.is_audio %}
+                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
+                        Аудио
+                    </div>
                 {% elif file.is_pdf %}
                     <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
                         PDF
                     </div>
                 {% elif file.is_text %}
                     <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
-                        TXT
+                        Документ
                     </div>
                 {% else %}
                     <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
@@ -45,7 +49,7 @@
                 {{ file.original_name }}
             </a>
             <p class="text-gray-500 text-sm mt-1">{{ file.human_size }}</p>
-            <p class="text-gray-400 text-sm">{{ file.content_type }}</p>
+            <p class="text-gray-400 text-sm">{{ file.file_category }}</p>
 
             <div class="mt-4 flex gap-2">
                 <a href="{{ file.get_download_url }}"
