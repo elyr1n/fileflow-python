@@ -43,8 +43,12 @@
 fileflow-python/
 ├── fileflow/           # Логика работы с файлами
 ├── uploader/           # Интерфейс загрузки файлов
-├── templates/          # HTML-шаблоны
-├── static/             # Статические файлы (CSS, JS)
+├── uploader/templates/ # HTML-Шаблоны
+│   ├── uploader/       # Шаблоны приложения uploader
+│   │   ├── all_file_details.html  # Детали всех файлов
+│   │   ├── base.html              # Базовый шаблон
+│   │   ├── file_detail.html       # Детали конкретного файла
+│   │   └── uploader.html          # Основная страница загрузки
 ├── manage.py           # Точка входа в Django
 └── requirements.txt    # Зависимости проекта
 ```
