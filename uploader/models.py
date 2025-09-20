@@ -54,7 +54,6 @@ EXTENSION_CATEGORIES = {
 }
 
 
-
 def validate_file_size_512mb(file):
     if not file:
         return
