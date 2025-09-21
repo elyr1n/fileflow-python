@@ -27,7 +27,6 @@ def file_detail(request, slug):
     file = get_object_or_404(UploadFile, slug=slug)
     return render(request, "uploader/file_detail.html", {"file": file})
 
-
 def file_download(request, slug):
     file = get_object_or_404(UploadFile, slug=slug)
     if not file.file or not file.file.path or not file.file.storage.exists(file.file.name):

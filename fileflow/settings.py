@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "uploader",
+    "payment",
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Для работы фотографий на сайте (НЕ относится к статическим изображениям).
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
