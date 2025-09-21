@@ -19,7 +19,6 @@ FileFlow — это легкая и современная система для
 fileflow-python/
 ├── manage.py                 # Точка входа в Django (команды управления проектом)
 ├── requirements.txt          # Список зависимостей Python (Django, Pillow для изображений и т.д.)
-├── .env.example              # Пример файла с переменными окружения (скопируйте в .env)
 ├── fileflow/                 # Основная логика работы с файлами
 │   ├── __init__.py
 │   ├── admin.py              # Админ-панель для файлов
@@ -35,10 +34,6 @@ fileflow-python/
 │   ├── apps.py               # Конфигурация приложения
 │   ├── migrations/           # Миграции
 │   ├── models.py             # Дополнительные модели (если требуется)
-│   ├── static/               # Статические файлы (CSS, JS, Tailwind)
-│   │   └── uploader/
-│   │       └── css/
-│   │           └── tailwind.css  # Стили на Tailwind
 │   ├── templates/            # HTML-шаблоны
 │   │   └── uploader/
 │   │       ├── base.html                 # Базовый шаблон (header, footer)
