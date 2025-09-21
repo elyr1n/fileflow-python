@@ -10,10 +10,17 @@ class UploadFileAdmin(admin.ModelAdmin):
         "file_category_display",
         "human_size_display",
         "uploaded_at",
+        "user_display",
         "download_link",
     ]
-    list_filter = ["content_type", "uploaded_at", "extension"]
-    search_fields = ["original_name", "slug", "content_type"]
+    list_filter = ["content_type", "uploaded_at", "extension", "user__plan"]
+    search_fields = [
+        "original_name",
+        "slug",
+        "content_type",
+        "user__username",
+        "user__email",
+    ]
     readonly_fields = [
         "slug",
         "size",
@@ -23,9 +30,10 @@ class UploadFileAdmin(admin.ModelAdmin):
         "human_size_display",
         "file_category_display",
         "preview_link",
+        "user_display",
     ]
     fieldsets = (
-        ("Основная информация", {"fields": ("file", "original_name")}),
+        ("Основная информация", {"fields": ("file", "original_name", "user_display")}),
         (
             "Техническая информация",
             {
@@ -54,6 +62,13 @@ class UploadFileAdmin(admin.ModelAdmin):
 
     file_category_display.short_description = "Тип файла"
 
+    def user_display(self, obj):
+        return format_html(
+            "<strong>{}</strong> ({})", obj.user.username, obj.user.get_plan_display()
+        )
+
+    user_display.short_description = "Пользователь"
+
     def download_link(self, obj):
         return format_html(
             '<a href="{}" target="_blank">Скачать</a>', obj.get_download_url()
@@ -71,4 +86,4 @@ class UploadFileAdmin(admin.ModelAdmin):
     preview_link.short_description = "Предпросмотр"
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related()
+        return super().get_queryset(request).select_related("user")
