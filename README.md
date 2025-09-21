@@ -151,10 +151,6 @@ STRIPE_SECRET_KEY="sk_test_your_secret_key"
 - Для production: Используйте Gunicorn/NGINX, настройте HTTPS, замените DEBUG=False.
 - Payments: Пока не работает; игнорируйте или доработайте самостоятельно.
 
-## Лицензия
-
-MIT License. См. [LICENSE](LICENSE) для деталей.
-
 ## Контакты
 
 Автор: [elyr1n](https://github.com/elyr1n)  
