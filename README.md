@@ -35,10 +35,6 @@ fileflow-python/
 │   ├── apps.py               # Конфигурация приложения
 │   ├── migrations/           # Миграции
 │   ├── models.py             # Дополнительные модели (если требуется)
-│   ├── static/               # Статические файлы (CSS, JS, Tailwind)
-│   │   └── uploader/
-│   │       └── css/
-│   │           └── tailwind.css  # Стили на Tailwind
 │   ├── templates/            # HTML-шаблоны
 │   │   └── uploader/
 │   │       ├── base.html                 # Базовый шаблон (header, footer)
