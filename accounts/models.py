@@ -59,3 +59,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if self.plan == "premium":
             return 2 * 1024**3
         return 512 * 1024**2
+
+    @property
+    def max_file_size_mb(self):
+        return self.max_file_size() / 1024**2

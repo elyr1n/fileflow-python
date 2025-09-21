@@ -13,7 +13,7 @@
             Ваш тариф: <span class="text-blue-600">{{ request.user.get_plan_display }}</span>
         </p>
         <p class="text-gray-500 text-sm">
-            Максимальный размер файла: {% widthratio request.user.max_file_size 1048576 1 %} MB
+            Максимальный размер файла: {{ request.user.max_file_size_mb|floatformat:2 }} MB
         </p>
     </div>
 
