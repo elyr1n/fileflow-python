@@ -1,0 +1,14 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}FileFlow - Профиль{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-lg text-center">
+    <h1 class="text-2xl font-bold mb-4 text-blue-600">Профиль</h1>
+    <p class="text-gray-700 mb-2"><strong>Ник:</strong> {{ user.username }}</p>
+    <p class="text-gray-700 mb-2"><strong>Email:</strong> {{ user.email }}</p>
+    <p class="text-gray-700 mb-2"><strong>Тариф:</strong> {{ user.get_plan_display }}</p>
+    <p class="text-gray-700 mb-4"><strong>Максимальный размер файла:</strong> {{ user.max_file_size|divisibleby:1048576 }} MB</p>
+    <a href="{% url 'accounts:logout' %}" class="inline-block bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition shadow-md">Выйти</a>
+</div>
+{% endblock %}

@@ -1,71 +1,72 @@
 {% extends "uploader/base.html" %}
 
-{% block title %}FileFlow - Все загруженные файлы{% endblock %}
+{% block title %}FileFlow - Мои файлы{% endblock %}
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-10">
     <h1 class="text-4xl font-extrabold mb-10 text-center text-blue-600 tracking-tight">
-        Все загруженные файлы
+        Мои загруженные файлы
     </h1>
 
-    {% if not files %}
-        <p class="text-gray-500 text-center italic">Файлов пока нет</p>
-    {% endif %}
-
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {% for file in files %}
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition flex flex-col">
-            <div class="flex-1 flex justify-center items-center mb-4">
-                {% if file.is_image %}
-                    <img src="{{ file.file.url }}" alt="{{ file.original_name }}"
-                         class="max-h-40 w-auto rounded-xl shadow-sm object-contain">
-                {% elif file.is_video %}
-                    <video class="max-h-40 w-auto rounded-xl shadow-sm" controls>
-                        <source src="{{ file.file.url }}" type="{{ file.content_type }}">
-                        Ваш браузер не поддерживает видео.
-                    </video>
-                {% elif file.is_audio %}
-                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
-                        Аудио
-                    </div>
-                {% elif file.is_pdf %}
-                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
-                        PDF
-                    </div>
-                {% elif file.is_text %}
-                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
-                        Документ
-                    </div>
-                {% else %}
-                    <div class="flex justify-center items-center w-full h-40 bg-gray-100 rounded-xl shadow-sm text-gray-500 font-semibold">
-                        Другой файл
-                    </div>
-                {% endif %}
+    <div class="mb-6 space-y-3">
+        {% for message in messages %}
+            <div class="p-4 rounded-xl shadow-md border
+                        {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200
+                        {% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200
+                        {% else %}bg-gray-50 text-gray-800 border-gray-200{% endif %}">
+                {{ message }}
             </div>
+        {% endfor %}
+    </div>
 
-            <a href="{{ file.get_view_url }}"
-               class="text-blue-600 font-medium text-lg hover:text-blue-800 hover:underline truncate"
-               title="{{ file.original_name }}">
-                {{ file.original_name }}
-            </a>
-            <p class="text-gray-500 text-sm mt-1">{{ file.human_size }}</p>
-            <p class="text-gray-400 text-sm">{{ file.file_category }}</p>
-
-            <div class="mt-4 flex gap-2">
-                <a href="{{ file.get_download_url }}"
-                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-center transition flex-1">
-                    Скачать
-                </a>
-                <form action="{% url 'uploader:all_file_details_delete' file.slug %}" method="post" class="flex-1">
+    {% if files %}
+    <div class="grid gap-6 md:grid-cols-2">
+        {% for file in files %}
+        {% if file.user == request.user %}
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition">
+            <div class="flex justify-between items-start">
+                <div>
+                    <a href="{{ file.get_view_url }}"
+                       class="text-blue-600 font-medium text-lg transition-transform transition-colors duration-300 hover:text-blue-800 hover:scale-105 cursor-pointer hover:animate-file-hover"
+                       title="{{ file.original_name }}">
+                        {{ file.original_name|truncatechars:32 }}
+                    </a>
+                    <div class="text-gray-500 text-sm mt-1">{{ file.human_size }}</div>
+                    <div class="text-gray-400 text-sm mt-1">
+                        Тариф: {{ file.user.get_plan_display }} |
+                        Макс. размер файла: {% widthratio file.user.max_file_size 1048576 1 %} MB
+                    </div>
+                </div>
+                <form action="{% url 'uploader:all_file_details_delete' file.slug %}" method="post" class="inline">
                     {% csrf_token %}
                     <button type="submit"
-                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition w-full">
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">
                         Удалить
                     </button>
                 </form>
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center text-gray-500 italic mt-10">
+        У вас пока нет загруженных файлов.
+    </div>
+    {% endif %}
 </div>
+
+<style>
+@keyframes file-hover {
+    0% { transform: scale(1) rotate(0deg); text-shadow: 0 0 0px rgba(0,0,0,0); }
+    25% { transform: scale(1.03) rotate(-1deg); text-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
+    50% { transform: scale(1.05) rotate(1deg); text-shadow: 0 0 6px rgba(59, 130, 246, 0.6); }
+    75% { transform: scale(1.03) rotate(-1deg); text-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
+    100% { transform: scale(1) rotate(0deg); text-shadow: 0 0 0px rgba(0,0,0,0); }
+}
+
+.animate-file-hover:hover {
+    animation: file-hover 0.6s ease-in-out forwards;
+}
+</style>
 {% endblock %}

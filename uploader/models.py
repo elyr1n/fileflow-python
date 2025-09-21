@@ -5,6 +5,7 @@ import mimetypes
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from django.conf import settings
 
 
 MIME_CATEGORIES = {
@@ -63,6 +64,9 @@ def validate_file_size_512mb(file):
 
 
 class UploadFile(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="files"
+    )
     file = models.FileField(
         upload_to="uploads/%Y/%m/%d/",
         verbose_name="Файл",

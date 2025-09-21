@@ -8,6 +8,15 @@
         Загрузка файла
     </h1>
 
+    <div class="mb-6 text-center">
+        <p class="text-gray-700 font-medium">
+            Ваш тариф: <span class="text-blue-600">{{ request.user.get_plan_display }}</span>
+        </p>
+        <p class="text-gray-500 text-sm">
+            Максимальный размер файла: {% widthratio request.user.max_file_size 1048576 1 %} MB
+        </p>
+    </div>
+
     <div class="mb-6 space-y-3">
         {% for message in messages %}
             <div class="p-4 rounded-xl shadow-md border
@@ -22,7 +31,6 @@
     <form method="POST" enctype="multipart/form-data"
           class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 mb-10 text-center">
         {% csrf_token %}
-
         <label for="file-upload"
                class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,40 +45,6 @@
             Загрузить
         </button>
     </form>
-
-    <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Список файлов</h2>
-        {% if not files %}
-            <p class="text-gray-500 mt-2 italic">Файлов нет</p>
-        {% endif %}
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-2">
-        {% for file in files %}
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <a href="{{ file.get_view_url }}"
-                       class="text-blue-600 font-medium text-lg
-                              transition-transform transition-colors duration-300
-                              hover:text-blue-800 hover:scale-105 cursor-pointer
-                              hover:animate-file-hover"
-                       title="{{ file.original_name }}">
-                        {{ file.original_name|truncatechars:32 }}
-                    </a>
-                    <div class="text-gray-500 text-sm mt-1">{{ file.human_size }}</div>
-                </div>
-                <form action="{% url 'uploader:file_delete' file.slug %}" method="post" class="inline">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">
-                        Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
 </div>
 
 <script>
