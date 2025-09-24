@@ -70,6 +70,12 @@ class RegisterForm(UserCreationForm):
         return username
 
 
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
+
+
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(
         label="Почта или Ник-нейм",
@@ -78,7 +84,9 @@ class CustomAuthenticationForm(AuthenticationForm):
                 "class": "w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition",
             }
         ),
-        error_messages={"required": "Введите почту или ник-нейм!"},
+        error_messages={
+            "required": "Введите почту или ник-нейм!",
+        },
     )
     password = forms.CharField(
         label="Пароль",
@@ -88,8 +96,30 @@ class CustomAuthenticationForm(AuthenticationForm):
                 "class": "w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition",
             }
         ),
-        error_messages={"required": "Введите пароль!"},
+        error_messages={
+            "required": "Введите пароль!",
+        },
     )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
+
+        if username and password:
+            self.user_cache = authenticate(
+                self.request, username=username, password=password
+            )
+
+            if self.user_cache is None:
+                raise ValidationError(
+                    "Неверная почта/ник-нейм или пароль. Проверьте правильность введенных данных."
+                )
+            else:
+                if not self.user_cache.is_active:
+                    raise ValidationError("Этот аккаунт отключен.")
+
+        return cleaned_data
 
     class Meta:
         model = CustomUser

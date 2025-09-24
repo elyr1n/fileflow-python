@@ -67,4 +67,4 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     @property
     def max_file_size_mb(self):
-        return self.max_file_size() / 1024**2
+        return self.max_file_size() // 1024**2
