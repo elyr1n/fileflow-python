@@ -37,7 +37,9 @@ class RegisterForm(UserCreationForm):
                 "class": "w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition",
             }
         ),
-        error_messages={"required": "Пожалуйста, введите пароль!"},
+        error_messages={
+            "required": "Пожалуйста, введите пароль!",
+        },
     )
     password2 = forms.CharField(
         label="Повтор пароля",
@@ -49,7 +51,6 @@ class RegisterForm(UserCreationForm):
         ),
         error_messages={
             "required": "Пожалуйста, подтвердите пароль!",
-            "password_mismatch": "Пароли не совпадают!",
         },
     )
 
@@ -67,13 +68,6 @@ class RegisterForm(UserCreationForm):
         username = self.cleaned_data.get("username")
         if CustomUser.objects.filter(username=username).exists():
             raise forms.ValidationError("Пользователь с таким ником уже существует!")
-        return username
-
-
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.exceptions import ValidationError
-from django.contrib.auth import authenticate
 
 
 class CustomAuthenticationForm(AuthenticationForm):
