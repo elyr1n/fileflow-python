@@ -101,25 +101,9 @@ class CustomAuthenticationForm(AuthenticationForm):
         },
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        username = cleaned_data.get("username")
-        password = cleaned_data.get("password")
-
-        if username and password:
-            self.user_cache = authenticate(
-                self.request, username=username, password=password
-            )
-
-            if self.user_cache is None:
-                raise ValidationError(
-                    "Неверная почта/ник-нейм или пароль. Проверьте правильность введенных данных."
-                )
-            else:
-                if not self.user_cache.is_active:
-                    raise ValidationError("Этот аккаунт отключен.")
-
-        return cleaned_data
+    error_messages = {
+        "invalid_login": "Неверная почта/ник-нейм или пароль. Проверьте правильность введенных данных.",
+    }
 
     class Meta:
         model = CustomUser
