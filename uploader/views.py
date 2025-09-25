@@ -59,6 +59,7 @@ def file_delete(request, slug):
     file = get_object_or_404(UploadFile, slug=slug, user=request.user)
     file.file.delete(save=False)
     file.delete()
+    messages.success(request, "Файл успешно удален!")
     return redirect("uploader:uploader")
 
 
@@ -68,4 +69,5 @@ def all_file_details_delete(request, slug):
     file = get_object_or_404(UploadFile, slug=slug, user=request.user)
     file.file.delete(save=False)
     file.delete()
+    messages.success(request, "Файл успешно удален!")
     return redirect("uploader:all_file_details")

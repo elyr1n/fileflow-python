@@ -1,28 +1,16 @@
-{% extends "uploader/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}FileFlow - Мои файлы{% endblock %}
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-10">
-    <h1 class="text-4xl font-extrabold mb-10 text-center text-blue-600 tracking-tight">
+    <h1 class="text-4xl font-extrabold mb-6 text-center text-blue-600 tracking-tight">
         Мои загруженные файлы
     </h1>
-
-    <div class="mb-6 space-y-3">
-        {% for message in messages %}
-            <div class="p-4 rounded-xl shadow-md border
-                        {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200
-                        {% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200
-                        {% else %}bg-gray-50 text-gray-800 border-gray-200{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
 
     {% if files %}
     <div class="grid gap-6 md:grid-cols-2">
         {% for file in files %}
-        {% if file.user == request.user %}
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition">
             <div class="flex justify-between items-start">
                 <div>
@@ -33,8 +21,7 @@
                     </a>
                     <div class="text-gray-500 text-sm mt-1">{{ file.human_size }}</div>
                     <div class="text-gray-400 text-sm mt-1">
-                        Тариф: {{ file.user.get_plan_display }} |
-                        Макс. размер файла: {% widthratio file.user.max_file_size 1048576 1 %} MB
+                        Загружен: {{ file.uploaded_at|date:"d.m.Y H:i" }}
                     </div>
                 </div>
                 <form action="{% url 'uploader:all_file_details_delete' file.slug %}" method="post" class="inline">
@@ -46,7 +33,6 @@
                 </form>
             </div>
         </div>
-        {% endif %}
         {% endfor %}
     </div>
     {% else %}

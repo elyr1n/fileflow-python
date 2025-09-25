@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen py-12">
+    <div class="max-w-2xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div class="text-green-500 text-6xl mb-4">✅</div>
+            <h1 class="text-3xl font-bold mb-4">Оплата прошла успешно!</h1>
+            <p class="text-gray-600 mb-6">Ваша подписка активирована. Теперь вам доступны все премиум-функции.</p>
+            <a href="{% url 'uploader:uploader' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                Начать загрузку файлов
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

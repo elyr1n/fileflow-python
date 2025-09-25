@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen py-12">
+    <div class="max-w-2xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div class="text-yellow-500 text-6xl mb-4">⚠️</div>
+            <h1 class="text-3xl font-bold mb-4">Оплата отменена.</h1>
+            <p class="text-gray-600 mb-6">Вы отменили процесс оплаты. Если это произошло случайно, вы можете попробовать снова.</p>
+            <a href="{% url 'payment:subscription_plans' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                Вернуться к тарифам
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

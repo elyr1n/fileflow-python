@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="py-12">
+    <div class="max-w-2xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-center mb-8">Статус подписки</h1>
+        
+        {% if has_subscription %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    {% if user.is_superuser %}Премиум{% else %}{{ user_plan }}{% endif %} подписка
+                </h2>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {% if user.is_superuser %}Бессрочная{% else %}Активна{% endif %}
+                </span>
+            </div>
+            <div class="space-y-3 text-gray-700">
+                <p><strong class="text-gray-900">Тариф:</strong> 
+                    {% if user.is_superuser %}Премиум{% else %}{{ user_plan }}{% endif %}
+                </p>
+                <p><strong class="text-gray-900">Цена:</strong> 
+                    {% if user_plan == "Премиум" or user.is_superuser %}$5/месяц{% else %}Бесплатно{% endif %}
+                </p>
+                <p><strong class="text-gray-900">Статус:</strong> 
+                    {% if user.is_superuser %}Бессрочная{% else %}Активна{% endif %}
+                </p>
+                <p><strong class="text-gray-900">Окончание:</strong> 
+                    {% if user.is_superuser %}Никогда{% else %}Через 30 дней{% endif %}
+                </p>
+                <p><strong class="text-gray-900">Пользователь:</strong> {{ user.username }}</p>
+                {% if user.is_superuser %}
+                <p class="text-green-600 font-bold mt-4">Вы суперпользователь! Подписка бесконечна.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <div class="mb-4">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <p class="text-gray-600 text-lg">У вас нет активной подписки</p>
+                <p class="text-gray-500 text-sm mt-2">Текущий план: {{ user_plan }}</p>
+            </div>
+            <a href="{% url 'payment:subscription_plans' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+                Выбрать подписку
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

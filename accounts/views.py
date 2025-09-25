@@ -31,9 +31,7 @@ def user_login(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            messages.success(
-                request, _("Вы вошли как %(username)s") % {"username": user.username}
-            )
+            messages.success(request, _("Вы успешно вошли в систему."))
             return redirect("uploader:uploader")
     else:
         form = CustomAuthenticationForm()

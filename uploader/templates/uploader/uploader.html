@@ -1,4 +1,4 @@
-{% extends "uploader/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}FileFlow - Загрузка файла{% endblock %}
 
@@ -9,23 +9,29 @@
     </h1>
 
     <div class="mb-6 text-center">
-        <p class="text-gray-700 font-medium">
-            Ваш тариф: <span class="text-blue-600">{{ request.user.get_plan_display }}</span>
-        </p>
-        <p class="text-gray-500 text-sm">
-            Максимальный размер файла: {{ request.user.max_file_size_mb }} MB
-        </p>
+        {% if user.is_superuser %}
+            <p class="text-green-600 font-bold mt-2">Вы суперпользователь! Подписка бесконечна.</p>
+        {% else %}
+            <p class="text-gray-700 font-medium">
+                Ваш тариф: <span class="text-blue-600">{{ request.user.get_plan_display }}</span>
+            </p>
+            <p class="text-gray-500 text-sm">
+                Максимальный размер файла: {{ request.user.max_file_size_mb }} MB
+            </p>
+        {% endif %}
     </div>
 
     <div class="mb-6 space-y-3">
-        {% for message in messages %}
-            <div class="p-4 rounded-xl shadow-md border
-                        {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200
-                        {% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200
-                        {% else %}bg-gray-50 text-gray-800 border-gray-200{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+         <div class="mb-6 space-y-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl shadow-md border
+                            {% if message.tags == 'success' or message.tags == 'info' %}bg-green-50 text-green-800 border-green-200
+                            {% elif message.tags == 'error' or message.tags == 'warning' %}bg-red-50 text-red-800 border-red-200
+                            {% else %}bg-green-50 text-green-800 border-green-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+         </div>
     </div>
 
     <form method="POST" enctype="multipart/form-data"
